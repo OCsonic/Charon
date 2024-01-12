@@ -1,6 +1,6 @@
 #!/bin/bash
 Warn_Invalid="Invalid/unsupported GPU selection!"
-if [[ "$(basename $0)" == "gpu-run" ]]; then
+if [[ "$(basename $0)" == "elysium" ]]; then
 	GPU="$1"
 	cmd="${@:2}"
 else
