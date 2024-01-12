@@ -1,0 +1,17 @@
+#!/bin/bash
+Warn_Invalid="Invalid/unsupported GPU selection!"
+if [[ "$(basename $0)" == "gpu-run" ]]; then
+	GPU="$1"
+	cmd="${@:2}"
+else
+	GPU="$(basename $0)"
+	cmd="$@"
+fi
+if [[ ! "$cmd" ]]; then exit 1; fi
+case "$GPU" in
+	  elnvidiad|nvidia) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=va_gl $cmd ;;
+	elnouveaud|nouveau) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=va_gl $cmd ;;
+		elamdd|amd) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=va_gl $cmd ;;
+	    elinteli|intel) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER=va_gl $cmd ;;
+			   *) echo "$Warn_Invalid" ;;
+esac
