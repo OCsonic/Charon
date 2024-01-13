@@ -1,1 +1,23 @@
 #!/bin/bash
+XorgLogs="$(grep "LoadModule" /home/basil/.local/share/xorg/Xorg.0.log)"
+echo "$(basename $0):"
+echo "   Loaded PCI Display Devices:"
+echo ""
+while read -r line; do
+	echo "     $line"
+	echo "     Loaded Xorg Modules:"
+	if [[ "$(echo $line | grep -Eo "(NVIDIA)")" ]]; then
+		while read -r module; do
+			echo "      $module"
+		done < <(echo "$XorgLogs" | grep -Eo "\".*(nvidia|nouveau).*\"")
+	elif [[ "$(echo $line | grep -Eo "(AMD|ATI)")" ]]; then
+		while read -r module; do
+			echo "      $module"
+		done < <(echo "$XorgLogs" | grep -Eo "\".*(radeon|amd|ati).*\"")
+	elif [[ "$(echo $line | grep -Eo "(Intel)")" ]]; then
+		while read -r module; do
+			echo "      $module"
+		done < <(echo "$XorgLogs" | grep -Eo "\".*(intel).*\"")
+	fi
+	echo ""
+done < <(lspci | grep -E "(VGA|3D|2D)")
