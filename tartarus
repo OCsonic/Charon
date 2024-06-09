@@ -1,21 +1,45 @@
 #!/bin/bash
+
+### Prefetch
 glxinfo="$(glxinfo)"
 eglinfo="$(eglinfo 2>/dev/null)"
 vulkaninfo="$(vulkaninfo 2>/dev/null)"
 clinfo="$(clinfo)"
+vainfo="$(vainfo 2>/dev/null)"
+
 echo "$(basename $0):"
-echo "  OpenGL:"
-echo "    Core      - GPU: $(echo -e "$glxinfo" | grep "OpenGL renderer string" | cut -d' ' -f 4-) | Driver: OpenGL $(echo -e "$glxinfo" | grep "OpenGL core profile version string" | cut -d' ' -f 6- | sed 's/ (Core Profile)//g')"
-echo "    OpenGL ES -      $(n=1; while [[ $n -lt $(echo "$(echo -e "$glxinfo" | grep "OpenGL renderer string" | cut -d' ' -f 4-)" | wc -c) ]]; do printf " "; n=$((n+1)); done)   Driver: $(echo -e "$glxinfo" | grep "OpenGL ES profile version string" | cut -d' ' -f 6-)"
-echo "    EGL       - Clients : $(echo -e "$eglinfo" | grep "EGL client APIs" | head -1 | cut -d' ' -f 4-) | Driver: $(echo -e "$eglinfo" | grep "EGL vendor string" | head -1 | cut -d' ' -f 4-) | EGL Version: $(echo -e "$eglinfo" | grep "EGL version string" | head -1 | cut -d' ' -f 4-)"
-echo "  Vulkan:"
-echo "    Vulkan    - GPU:$(echo -e "$vulkaninfo" | grep "deviceName" | head -1 | cut -d'=' -f 2-) | Driver:$(echo -e "$vulkaninfo" | grep "driverInfo" | head -1 | cut -d'=' -f 2-)"
-if [ $(echo $clinfo | grep -o "Number of platforms [0-9]*" | grep -o "[0-9]*") == "0" ]; then
+
+### OpenGL
+if [ "$(echo -e "$glxinfo" | grep "OpenGL renderer string")" ] || [ "$(echo -e "$glxinfo" | grep "OpenGL ES profile version string")" ]; then
+	echo "  OpenGL:"
+fi
+if [ "$(echo -e "$glxinfo" | grep "OpenGL renderer string")" ]; then
+	echo "    Core      - GPU: $(echo -e "$glxinfo" | grep "OpenGL renderer string" | cut -d' ' -f 4-) | Driver: OpenGL $(echo -e "$glxinfo" | grep "OpenGL core profile version string" | cut -d' ' -f 6- | sed 's/ (Core Profile)//g')"
+fi
+if [ "$(echo -e "$glxinfo" | grep "OpenGL ES profile version string")" ]; then
+	echo "    OpenGL ES -      $(n=1; while [[ $n -lt $(echo "$(echo -e "$glxinfo" | grep "OpenGL renderer string" | cut -d' ' -f 4-)" | wc -c) ]]; do printf " "; n=$((n+1)); done)   Driver: $(echo -e "$glxinfo" | grep "OpenGL ES profile version string" | cut -d' ' -f 6-)"
+fi
+if [ "$(echo -e "$eglinfo" | grep "EGL client APIs" | head -1)" ]; then
+	echo "    EGL       - Clients : $(echo -e "$eglinfo" | grep "EGL client APIs" | head -1 | cut -d' ' -f 4-) | Driver: $(echo -e "$eglinfo" | grep "EGL vendor string" | head -1 | cut -d' ' -f 4-) | EGL Version: $(echo -e "$eglinfo" | grep "EGL version string" | head -1 | cut -d' ' -f 4-)"
+fi
+
+### Vulkan
+if [ "$(echo $vulkaninfo | grep -o "deviceName")" ]; then
+	echo "  Vulkan:"
+	echo "    Vulkan    - GPU:$(echo -e "$vulkaninfo" | grep "deviceName" | head -1 | cut -d'=' -f 2-) | Driver:$(echo -e "$vulkaninfo" | grep "driverInfo" | head -1 | cut -d'=' -f 2-)"
+fi
+
+### OpenCL
+if [ ! "$(echo $clinfo | grep -o "Number of platforms [0-9]*" | grep -o "[0-9]*")" == "0" ]; then
 	echo "  OpenCL:"
-	echo "    OpenCL    - No platforms"
-else
 	platformname=$(echo "$clinfo" | grep "Platform Name" | head -1) && platformname="${platformname#*Name}" && platformname="$(echo $platformname | tr -s ' ')"
 	platformver=$(echo "$clinfo" | grep "Platform Version" | head -1) && platformver="${platformver#*Version}" && platformver="$(echo $platformver | tr -s ' ')"
-	echo "  OpenCL:"
 	echo "    OpenCL    - GPU: $platformname | Driver: $platformver"
 fi
+
+### VA-API
+if [ "$(echo $vainfo | grep "Driver version" | cut -d' ' -f 4-)" ]; then
+	echo "  VA-API:"
+	echo "    VA-API    - GPU: $(echo "$vainfo" | grep "Driver version" | cut -d' ' -f 4-) | VA-API Version: $(echo "$vainfo" | grep "VA-API version" | cut -d' ' -f 4-)"
+fi
+
