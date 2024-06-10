@@ -18,10 +18,10 @@ if [[ "$(basename $0)" == "elysium" ]]; then
 	# Checks what gpu you selected
 	if [[ ! "$EL_PRINT_VARS" == "1" ]]; then if [[ ! "${@:2}" ]]; then echo "$Warn_NoExec" && exit 1; fi; fi
 	case "$GPU" in
-			    nvidia) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia" ;;
-			   nouveau) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau" ;;
-			       amd) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600" ;;
-		    	     intel) GPU_VARS="DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER=\"\"" ;;
+			    nvidia) GPU_VARS="FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia" ;;
+			   nouveau) GPU_VARS="FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau" ;;
+			       amd) GPU_VARS="FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600" ;;
+		    	     intel) GPU_VARS="FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER=\"\"" ;;
 				 *) echo -e "$Warn_Invalid" ;;
 	esac
 	
@@ -38,10 +38,10 @@ else
 	# Checks what gpu you selected
 	if [[ ! "$EL_PRINT_VARS" == "1" ]]; then if [[ ! "$@" ]]; then echo "$Warn_NoExec" && exit 1; fi; fi
 	case "$GPU" in
-			 elnvidiad) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia "$@" ;;
-			elnouveaud) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau "$@" ;;
-			    elamdd) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600 "$@" ;;
-			  elinteli) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER="" "$@" ;;
+			 elnvidiad) FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia "$@" ;;
+			elnouveaud) FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau "$@" ;;
+			    elamdd) FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600 "$@" ;;
+			  elinteli) FLATPAK_GL_DRIVERS=mesa-git DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER="" "$@" ;;
 				 *) echo -e "$Warn_Invalid" ;;
 	esac
 fi

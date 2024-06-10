@@ -1,6 +1,11 @@
 #!/bin/bash
 
-Flatpak_Exports="/home/basil/.local/share/flatpak/exports/bin"
+if test ! -d "$HOME/.local/share/flatpak/runtime/org.freedesktop.Platform.GL.mesa-git"; then
+	echo "Please install org.freedesktop.Platform.GL.mesa-git from the flathub-beta repostiory for Zink to work!"
+	exit 1
+fi
+
+Flatpak_Exports="$HOME/.local/share/flatpak/exports/bin"
 
 Warn_Invalid="Invalid/unsupported driver selection!"
 Warn_Flatpak="Please specify a flatpak to add the variables to!"
