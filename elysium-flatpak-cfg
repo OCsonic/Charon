@@ -1,0 +1,18 @@
+#!/bin/bash
+
+Flatpak_Exports="/home/basil/.local/share/flatpak/exports/bin"
+
+Warn_Invalid="Invalid/unsupported driver selection!"
+Warn_Flatpak="Please specify a flatpak to add the variables to!"
+Warn_NoExist="\"${2}\" is not a Flatpak!"
+
+if [[ ! "$1" ]]; then echo "$Warn_Invalid" && exit 1; fi
+if [[ ! "$2" ]]; then echo "$Warn_Flatpak" && exit 1; fi
+if test -f "${Flatpak_Exports}/${2}"; then
+	for envvar in $(EL_PRINT_VARS=1 elysium "${1}"); do
+		flatpak override --user --env="$envvar" "${2}"
+	done
+else
+	echo "$Warn_NoExist" && exit 1
+fi
+

@@ -1,23 +1,47 @@
 #!/bin/bash
-Warn_Invalid="Invalid/unsupported driver selection!"
+
+# Warning text, It's pre specified here because the env
+#  var stuff is duplicated in order to use compatible script
+#  logic with steam command line options.
+Warn_Invalid="Invalid/unsupported driver selection!\nTry one of nvidia, nouveau, amd, intel.\nSetting the env var \"EL_PRINT_VARS=1\" will print the env vars instead of setting them."
+Warn_NoExec="Please specify a program to run!"
+
+# This part is here because the names of symlinks can
+#  be used as a shorthand to execute a specific routine
+#  so that program like steam can work (steam command line
+#  options do not support passing cli arguments to a
+#  wrapper program, so we have support for symlinks that
+#  provide the same functionality).
 if [[ "$(basename $0)" == "elysium" ]]; then
 	GPU="$1"
+	
+	# Checks what gpu you selected
+	if [[ ! "$EL_PRINT_VARS" == "1" ]]; then if [[ ! "${@:2}" ]]; then echo "$Warn_NoExec" && exit 1; fi; fi
 	case "$GPU" in
-		  elnvidiad|nvidia) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia "${@:2}" ;;
-		elnouveaud|nouveau) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nvidia "${@:2}" ;;
-			elamdd|amd) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600 "${@:2}" ;;
-		    elinteli|intel) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER="" "${@:2}" ;;
-				 *) echo "$Warn_Invalid" ;;
+			    nvidia) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia" ;;
+			   nouveau) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau" ;;
+			       amd) GPU_VARS="DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600" ;;
+		    	     intel) GPU_VARS="DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER=\"\"" ;;
+				 *) echo -e "$Warn_Invalid" ;;
 	esac
-	if [[ ! "${@:2}" ]]; then exit 1; fi
+	
+	# This part makes vars get printed if you
+	#  set the env var EL_PRINT_VARS
+	if [[ "$EL_PRINT_VARS" == "1" ]]; then
+		echo $GPU_VARS
+	else
+		eval $GPU_VARS ${@:2}
+	fi
 else
 	GPU="$(basename $0)"
+
+	# Checks what gpu you selected
+	if [[ ! "$EL_PRINT_VARS" == "1" ]]; then if [[ ! "$@" ]]; then echo "$Warn_NoExec" && exit 1; fi; fi
 	case "$GPU" in
-		  elnvidiad|nvidia) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia "$@" ;;
-		elnouveaud|nouveau) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nvidia "$@" ;;
-			elamdd|amd) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600 "$@" ;;
-		    elinteli|intel) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER="" "$@" ;;
-				 *) echo "$Warn_Invalid" ;;
+			 elnvidiad) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 __VK_LAYER_NV_optimus=NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia VDPAU_DRIVER=nvidia "$@" ;;
+			elnouveaud) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=1 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nouveau_icd.x86_64.json:/usr/share/vulkan/icd.d/nouveau_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink LIBVA_DRIVER_NAME=nouveau VDPAU_DRIVER=nouveau "$@" ;;
+			    elamdd) DRI_PRIME=1 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=radeon VDPAU_DRIVER=r600 "$@" ;;
+			  elinteli) DRI_PRIME=0 __NV_PRIME_RENDER_OFFLOAD=0 __VK_LAYER_NV_optimus=non_NVIDIA_only VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json __GLX_VENDOR_LIBRARY_NAME=mesa LIBVA_DRIVER_NAME=iHD VDPAU_DRIVER="" "$@" ;;
+				 *) echo -e "$Warn_Invalid" ;;
 	esac
-	if [[ ! "$@" ]]; then exit 1; fi
 fi
