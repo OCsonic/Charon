@@ -28,7 +28,7 @@ if [[ "$(basename $0)" == "elysium" ]]; then
 	# This part makes vars get printed if you
 	#  set the env var EL_PRINT_VARS
 	if [[ "$EL_PRINT_VARS" == "1" ]]; then
-		echo $GPU_VARS
+		echo $GPU_VARS ${@:2}
 	else
 		eval $GPU_VARS ${@:2}
 	fi
