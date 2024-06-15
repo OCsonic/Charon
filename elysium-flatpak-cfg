@@ -15,6 +15,9 @@ if [[ ! "$1" ]]; then echo "$Warn_Invalid" && exit 1; fi
 if [[ ! "$2" ]]; then echo "$Warn_Flatpak" && exit 1; fi
 if test -f "${Flatpak_Exports}/${2}"; then
 	for envvar in $(EL_PRINT_VARS=1 elysium "${1}"); do
+		if [ "$(echo $envvar | grep "vulkan/icd.d")" ]; then
+			envvar="$(echo $envvar | sed 's/\/usr\/share/\/usr\/lib\/x86_64-linux-gnu\/GL/g')"
+		fi
 		flatpak override --user --env="$envvar" "${2}"
 	done
 else
