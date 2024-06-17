@@ -1,11 +1,13 @@
 # Tools
 ## Asphodel
-Displays PCI information relating to all connected GPUs and lists the most recently loaded xorg modules for each.
+Displays PCI information relating to all connected GPUs and lists the most recently loaded Xorg modules for each.
 
 This is primarily for verifying the installation of modules for each GPU to help quickly figure out if there's an obvious problem.
 
 ## Elysium
 Allows you to switch between connected graphics cards both on Xorg and Wayland.
+### Elsium Flatpak Cfg
+Adds the same env vars to the configuration file for Flatpaks automatically and adjusts things like the Vulkan ICD paths.
 
 | Driver Support Status |
 | --- | ----: |
