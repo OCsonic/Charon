@@ -16,20 +16,26 @@ if [[ ! "$2" ]]; then echo "$Warn_Flatpak" && exit 1; fi
 if test -f "${Flatpak_Exports}/${2}"; then
 	for envvar in $(EL_PRINT_VARS=1 elysium "${1}"); do
 		if [ "$(echo $envvar | grep "vulkan/icd.d")" ]; then
-			envvar="$(echo $envvar | sed 's/\/usr\/share/\/usr\/lib\/x86_64-linux-gnu\/GL/g')"
+			envvar="$(echo $envvar | sed 's/\/usr\/share/\/usr\/lib\/x86_64-linux-gnu\/GL/')"
+			envvar="$(echo $envvar | sed 's/\/usr\/share/\/usr\/lib\/i386-linux-gnu\/GL/')"
 		fi
 		case "$2" in # Handles special cases with some broken software
 			com.valvesoftware.Steam)
-				echo "Steam doesn't launch correctly when ran on the dGPU in modern releases."
+				echo "Flatpak Steam doesn't launch correctly when ran on the dGPU in modern releases."
 				echo "To work around this, you can enable the dGPU using game command-line options."
 				echo "You can use the following command and dump the output into the command-line"
 				echo "options for a game that you want to use your dGPU with."
-				echo "EL_PRINT_VARS=1 elysium $1 %command%"
+				echo "ELFP_PRINT_VARS=1 elysium-flatpak-cfg $1 %command%"
 				exit 1
 			;;
 		esac
-		flatpak override --user --env="$envvar" "${2}"
+		if [[ "$ELFP_PRINT_VARS" == "1" ]]; then
+			printf "$envvar "
+		else
+			flatpak override --user --env="$envvar" "${2}"
+		fi
 	done
+	echo ""
 else
 	echo "$Warn_NoExist" && exit 1
 fi
