@@ -6,6 +6,7 @@ eglinfo="$(eglinfo 2>/dev/null)"
 vulkaninfo="$(vulkaninfo 2>/dev/null)"
 clinfo="$(clinfo)"
 vainfo="$(vainfo 2>/dev/null)"
+vdpauinfo="$(vdpauinfo 2>/dev/null)"
 
 echo "$(basename $0):"
 
@@ -41,5 +42,16 @@ fi
 if [ "$(echo $vainfo | grep "Driver version" | cut -d' ' -f 4-)" ]; then
 	echo "  VA-API:"
 	echo "    VA-API    - GPU: $(echo "$vainfo" | grep "Driver version" | cut -d' ' -f 4-) | VA-API Version: $(echo "$vainfo" | grep "VA-API version" | cut -d' ' -f 4-)"
+fi
+
+### VDPAU
+if [ "$(echo $vdpauinfo | grep "Information string" | cut -d':' -f 2-)" ]; then
+	echo "  VDPAU:"
+	platformname=$(echo "$vdpauinfo" | grep "Information string" | cut -d':' -f 2-)
+	platformver="$(echo "$vdpauinfo" | grep "Information string" | cut -d':' -f 2- | grep -o "[0-9].*" | cut -d' ' -f 1)"
+	if [ "$(echo $platformver)" ]; then
+		platformver="| VDPAU Version: $platformver"
+	fi
+	echo "    VDPAU     - GPU:${platformname%%  *} $platformver "
 fi
 
